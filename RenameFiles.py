@@ -20,7 +20,7 @@ import OleFileIO_PL # support for doc file
 import PyPDF2
 from numpy.random import rand
 
-class RenameFiles(object):
+class FileRenamer(object):
     """Rename file name.
 
     Rename Files according to their contents.
@@ -142,15 +142,12 @@ class RenameFiles(object):
         if title:
             self.__rename_file(title)
 
-    class Result(ctypes.Structure):
-        """
-        A return Structure.
-        """
+    class _Result(ctypes.Structure):
         _fields_ = [("offset", ctypes.c_int), ("size", ctypes.c_int), ("utf_16", ctypes.c_int)]
 
     def __parse_fib(self, stream, table):
         lib = ctypes.cdll.LoadLibrary("./libparselib.so")
-        lib.parse_fib.restype = ctypes.POINTER(self.Result)
+        lib.parse_fib.restype = ctypes.POINTER(self._Result)
         result = lib.parse_fib(stream, table)
         return result.contents.offset, result.contents.size, result.contents.utf_16
 
@@ -255,11 +252,17 @@ class RenameFiles(object):
             else:
                 print "%s: extension not support." % (self.__filename)
 
-if __name__ == "__main__":
+def main():
+    """
+    Rename all files under the `pwd`.
+    """
     for file_ in os.listdir('.'):
         if os.path.isfile(file_):
             print "@--->%s" % file_
-            f = RenameFiles(file_)
-            f.rename()
+            renamer = FileRenamer(file_)
+            renamer.rename()
 
     print "\nDone!"
+
+if __name__ == "__main__":
+    main()

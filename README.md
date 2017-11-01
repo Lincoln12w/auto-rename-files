@@ -64,7 +64,7 @@ If work offline, download the crossponding wheel files and install with:
 ## Usage
 
 Compile the 'FIB parse module' by `make`. &
-Run `python RenameFiles.py` in the working directory.
+Run `python file_renamer.py` in the working directory.
 
 ## TODO
 
@@ -102,3 +102,4 @@ Have more test.
   - BUG 006 fixed: Use the first non-empty paragraph to rename the doc/docx file.
   - Retrive page content by `getPage(0).extractText()` and use the first non-empty line
         to rename the pdf file.
+  - Rename the class to `FileRenamer`, and the module name to `file_renamer.py`.
