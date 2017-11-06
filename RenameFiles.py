@@ -100,9 +100,11 @@ class FileRenamer(object):
         content = pdff.getDocumentInfo().title
 
         # get the first non-empty line
-        if content is None:
+        if content is None or content == '':
             contents = pdff.getPage(0).extractText().split('\n')
             for content in contents:
+                if content == u' ' or content == u'1' or content == u'Page ':
+                    continue
                 if content:
                     break
 

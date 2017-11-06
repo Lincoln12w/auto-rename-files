@@ -103,3 +103,7 @@ Have more test.
   - Retrive page content by `getPage(0).extractText()` and use the first non-empty line
         to rename the pdf file.
   - Rename the class to `FileRenamer`, and the module name to `file_renamer.py`.
+
+-v2.2 - 20171107:
+
+  - Add more parse for pdf files.
