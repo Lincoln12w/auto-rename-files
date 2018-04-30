@@ -1,11 +1,20 @@
 """
-Description
+Description:
     Rename files, mainly used when the filename is unknown.
     Current support:
         zip, rar, docx, pptx, doc, pdf
 
 Author: lincoln12w
 Github: https://github.com/Lincoln12w
+
+Module:
+    zipfile, rarfile, docx, pptx, OleFileIO_PL, PyPDF2
+
+APIs:
+
+Modify History
+--------------
+00a 07nov17 lzw Just create.
 """
 
 import os
@@ -16,9 +25,10 @@ import zipfile
 import rarfile
 import docx
 import pptx
-import OleFileIO_PL # support for doc file
+import OleFileIO_PL  # support for doc file
 import PyPDF2
 from numpy.random import rand
+
 
 class FileRenamer(object):
     """Rename file name.
@@ -41,7 +51,7 @@ class FileRenamer(object):
     def __init__(self, filename):
         self.__filename = filename
         if self.__os not in self.__supportos:
-            print "Operation System %s is not support, use windows as default." % self.__os
+            print "OS %s is not support, use windows as default." % self.__os
             self.__os = 'Windows'
         ext = filename.split('.')[-1]
         if ext == filename or ext == filename[1:]:
@@ -68,13 +78,14 @@ class FileRenamer(object):
             tgtname = tgtname[:self.__maxlen]
         while tgtname[-1] == '/':
             tgtname = tgtname[:-1]
-        #tgtname = tgtname.split('/')[-1]
+        # tgtname = tgtname.split('/')[-1]
         tgtname = os.path.split(tgtname)[1]
         if tgtname:
             tgtname += '-' + randstr + '.' + self.__ext
             tgtname = self.__replace_invalid_char(tgtname)
 
-            print "  Try to rename: %s\n             to: %s" % (self.__filename, tgtname)
+            print "  Try to rename: %s\n             to: %s"\
+                % (self.__filename, tgtname)
 
             try:
                 os.rename(self.__filename, tgtname)
@@ -93,7 +104,8 @@ class FileRenamer(object):
         try:
             pdff = PyPDF2.PdfFileReader(actfile)
         except PyPDF2.utils.PdfReadError:
-            print "    Error: %s is not a pdf file or cprrupted." % self.__filename
+            print "    Error: %s is not a pdf file or cprrupted."\
+                % self.__filename
             actfile.close()
             return
 
@@ -118,7 +130,8 @@ class FileRenamer(object):
         try:
             docxf = docx.Document(self.__filename)
         except docx.opc.exceptions.PackageNotFoundError:
-            print "    Error: %s is not a docx file or cprrupted." % self.__filename
+            print "    Error: %s is not a docx file or cprrupted."\
+                % self.__filename
             return
 
         # get the first non-empty paragraph
@@ -136,7 +149,8 @@ class FileRenamer(object):
         try:
             pptxf = pptx.Presentation(self.__filename)
         except pptx.exc.PackageNotFoundError:
-            print "    Error: %s is not a pptx file or cprrupted." % self.__filename
+            print "    Error: %s is not a pptx file or cprrupted."\
+                % self.__filename
             return
 
         title = pptxf.core_properties.title
@@ -145,23 +159,27 @@ class FileRenamer(object):
             self.__rename_file(title)
 
     class _Result(ctypes.Structure):
-        _fields_ = [("offset", ctypes.c_int), ("size", ctypes.c_int), ("utf_16", ctypes.c_int)]
+        _fields_ = [("offset", ctypes.c_int), ("size", ctypes.c_int),
+                    ("utf_16", ctypes.c_int)]
 
     def __parse_fib(self, stream, table):
         lib = ctypes.cdll.LoadLibrary("./libparselib.so")
         lib.parse_fib.restype = ctypes.POINTER(self._Result)
         result = lib.parse_fib(stream, table)
-        return result.contents.offset, result.contents.size, result.contents.utf_16
+        return result.contents.offset, result.contents.size, \
+            result.contents.utf_16
 
     def __rename_doc_file(self):
         try:
             ole = OleFileIO_PL.OleFileIO(self.__filename)
         except IOError:
-            print "    Error: %s is not a doc file or cprrupted." % self.__filename
+            print "    Error: %s is not a doc file or cprrupted."\
+                % self.__filename
             return
 
-        # Each Word Binary File must contain a stream called "WordDocument" stream,
-        # and this stream must start with a File Information Block (FIB).
+        # Each Word Binary File must contain a stream called
+        # "WordDocument" stream, and this stream must start with a
+        # File Information Block (FIB).
         docstream = ole.openstream('worddocument').read()
         if ole.exists('1Table'):
             table = ole.openstream('1Table').read()
@@ -173,7 +191,7 @@ class FileRenamer(object):
         offset, size, utf_16 = self.__parse_fib(docstream, table)
 
         if utf_16:
-            text = docstream[offset:offset+ 2 * size]
+            text = docstream[offset: offset + 2 * size]
             text = text.decode('utf-16').encode('utf-8')
         else:
             offset /= 2
@@ -200,7 +218,8 @@ class FileRenamer(object):
         try:
             zipf = zipfile.ZipFile(self.__filename, mode='r')
         except zipfile.BadZipfile:
-            print "    Error: %s is not a zip file or cprrupted." % self.__filename
+            print "    Error: %s is not a zip file or cprrupted."\
+                % self.__filename
             return
 
         content = zipf.namelist()
@@ -226,7 +245,8 @@ class FileRenamer(object):
         try:
             rarf = rarfile.RarFile(self.__filename, mode='r')
         except rarfile.BadRarFile:
-            print "    Error: %s is not a rar file or cprrupted." % self.__filename
+            print "    Error: %s is not a rar file or cprrupted."\
+                % self.__filename
             return
 
         content = rarf.namelist()
@@ -253,6 +273,7 @@ class FileRenamer(object):
                 renamefunc(self)
             else:
                 print "%s: extension not support." % (self.__filename)
+
 
 def main():
     """
