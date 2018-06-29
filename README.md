@@ -104,6 +104,6 @@ Have more test.
         to rename the pdf file.
   - Rename the class to `FileRenamer`, and the module name to `file_renamer.py`.
 
--v2.2 - 20171107:
+- v2.2 - 20171107:
 
   - Add more parse for pdf files.
